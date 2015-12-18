@@ -249,7 +249,6 @@ typedef struct {
 	matrix_t projection;    // 投影变换
 	matrix_t transform;     // transform = world * view * projection
 	float w, h;             // 屏幕大小
-	vector_t eye;
 }	transform_t;
 
 
@@ -670,9 +669,10 @@ void device_draw_primitive(device_t *device, const vertex_t *v1,
 	point_t p1, p2, p3, c1, c2, c3;
 	int render_state = device->render_state;
 	int cosResult;
-	vector_t line1 = { 0.0f, 0.0f, 0.0f, 0.0f };
-	vector_t line2 = { 0, 0, 0, 0 };
-	vector_t normal = { 0, 0, 0, 0 };
+	vector_t line1 = {0};
+	vector_t line2 = {0};
+	vector_t normal = {0};
+	vector_t eye = {0, 0, 1};
 	line1.x = v1->pos.x - v2->pos.x;
 	line1.y = v1->pos.y - v2->pos.y;
 	line1.z = v1->pos.z - v2->pos.z;
@@ -685,7 +685,7 @@ void device_draw_primitive(device_t *device, const vertex_t *v1,
 	vector_crossproduct(&normal, &line1, &line2);
 	vector_normalize(&normal);
 
-	cosResult = vector_dotproduct(&(device->transform.eye), &normal);
+	cosResult = vector_dotproduct(&eye, &normal);
 	if (cosResult < 0)
 		return;
 
@@ -903,7 +903,6 @@ void draw_box(device_t *device, float theta) {
 
 void camera_at_zero(device_t *device, float x, float y, float z) {
 	point_t eye = { x, y, z, 1 }, at = { 0, 0, 0, 1 }, up = { 0, 0, 1, 1 };
-	device->transform.eye = eye;
 	matrix_set_lookat(&device->transform.view, &eye, &at, &up);
 	transform_update(&device->transform);
 }
